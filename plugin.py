@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Hiking DDS238-2 ZN/S Energy Meter
+SDM120c Energy Meter
 Author: Xavier Beaudouin
 Requirements: 
     1. modbus over TCP adapter like PW21
     2. pymodbus AND pymodbusTCP
 """
 """
-<plugin key="DS238_ModbusTCP" name="DS238-2 ZN/S ModbusTCP" author="Xavier Beaudouin" version="0.0.1" externallink="https://github.com/xbeaudouin/domoticz-ds238-modbus-tcp">
+<plugin key="DS238_ModbusTCP" name="SDM120c ModbusTCP" author="Xavier Beaudouin" version="0.0.1" externallink="https://github.com/xbeaudouin/domoticz-sdm120c-modbus-tcp">
     <params>
         <param field="Address" label="IP Address" width="150px" required="true" />
         <param field="Port" label="Port Number" width="100px" required="true" default="502" />
