@@ -32,11 +32,7 @@ sys.path.append('/usr/local/lib/python3.7/dist-packages')
 sys.path.append('/usr/local/lib/python3.8/dist-packages')
 sys.path.append('/usr/local/lib/python3.9/dist-packages')
 
-import pymodbus
-
-from pyModbusTCP.client import ModbusClient
-from pymodbus.constants import Endian
-from pymodbus.payload   import BinaryPayloadDecoder
+import sdm_modbus
 
 #
 # Domoticz shows graphs with intervals of 5 minutes.
@@ -116,16 +112,12 @@ class BasePlugin:
         return
 
     def onStart(self):
-        try:
-            Domoticz.Log("DS238-2 ZN/S Energy Meter TCP loaded!, using python v" + sys.version[:6] + " and pymodbus v" + pymodbus.__version__)
-        except:
-            Domoticz.Log("DS238-2 ZN/S Energy Meter TCP loaded!")
+        Domoticz.Log("SDM120c Energy Meter TCP loaded!")
 
         # Check dependancies
         try:
             if (float(Parameters["DomoticzVersion"][:6]) < float("2020.2")): Domoticz.Error("WARNING: Domoticz version is outdated or not supported. Please update!")
             if (float(sys.version[:1]) < 3): Domoticz.Error("WARNING: Python3 should be used !")
-            if (float(pymodbus.__version__[:3]) < float("2.3")): Domoticz.Error("WARNING: pymodbus version is outdated, please update!")
         except:
             Domoticz.Error("Warning ! Dependancies could not be checked !")
 
