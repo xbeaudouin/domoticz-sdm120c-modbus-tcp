@@ -102,10 +102,14 @@ class BasePlugin:
         self.current=Average()
         # Active power for last 5 minutes
         self.active_power=Average()
+	# Apparent Power for last 5 minutes
+	self.apparent_power=Average()
         # Reactive power for last 5 minutes
         self.reactive_power=Average()
         # Power factor for last 5 minutes
         self.power_factor=Average()
+	# Phase Angle for last 5 minutes
+	self.phase_angle=Average()
         # Frequency for last 5 minutes
         self.frequency=Average()
 
@@ -137,30 +141,59 @@ class BasePlugin:
 
         # Create the devices if they does not exists
         # TODO: refactor this.
-        if 1 not in Devices:
-            Domoticz.Device(Name="Total Energy",     Unit=1, Type=0xfa, Subtype=0x01, Used=0).Create()
-        if 2 not in Devices:
-            Domoticz.Device(Name="Export Energy",    Unit=2, Type=0xfa, Subtype=0x01, Used=0).Create()
-        if 3 not in Devices:
-            Domoticz.Device(Name="Import Energy",    Unit=3, Type=0xfa, Subtype=0x01, Used=0).Create()
-        if 4 not in Devices:
-            Domoticz.Device(Name="Voltage",          Unit=4, TypeName="Voltage", Used=0).Create()
-        if 5 not in Devices:
-            Domoticz.Device(Name="Current",          Unit=5, TypeName="Current (Single)", Used=0).Create()
-        if 6 not in Devices:
+	if 1 not in Devices:
+            Domoticz.Device(Name="Voltage",                      Unit=1,  TypeName="Voltage", Used=0).Create()
+	if 2 not in Devices:
+            Domoticz.Device(Name="Current",                      Unit=2,  TypeName="Current (Single)", Used=0).Create()
+	if 3 not in Devices:
             Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Active Power",     Unit=6, TypeName="Custom", Used=0, Options=Options).Create()
-        if 7 not in Devices:
+            Domoticz.Device(Name="Active Power",                 Unit=3,  TypeName="Custom", Used=0, Options=Options).Create()
+	if 4 not in Devices:
+            Options = { "Custom": "1;VA" }
+            Domoticz.Device(Name="Apparent Power",               Unit=4,  TypeName="Custom", Used=0, Options=Options).Create()
+	if 5 not in Devices:
             Options = { "Custom": "1;VAr" }
-            Domoticz.Device(Name="Reactive Power",   Unit=7, TypeName="Custom", Used=0, Options=Options).Create()
-        if 8 not in Devices:
+            Domoticz.Device(Name="Reactive Power",               Unit=5,  TypeName="Custom", Used=0, Options=Options).Create()
+	if 6 not in Devices:
             Options = { "Custom": "1;PF" }
-            Domoticz.Device(Name="Power Factor",     Unit=8, TypeName="Custom", Used=0, Options=Options).Create()
-        if 9 not in Devices:
+            Domoticz.Device(Name="Power Factor",                 Unit=6,  TypeName="Custom", Used=0, Options=Options).Create()
+	if 7 not in Devices:
+            Options = { "Custom": "1;Deg" }
+            Domoticz.Device(Name="Phase Angle",                  Unit=7,  TypeName="Custom", Used=0, Options=Options).Create()
+        if 8 not in Devices:
             Options = { "Custom": "1;Hz" }
-            Domoticz.Device(Name="Frequency",        Unit=9, TypeName="Custom", Used=0, Options=Options).Create()
+            Domoticz.Device(Name="Frequency",                    Unit=8,  TypeName="Custom", Used=0, Options=Options).Create()
+        if 9 not in Devices:
+            Domoticz.Device(Name="Import Energy",                Unit=9,  Type=0xfa, Subtype=0x01, Used=0).Create()
         if 10 not in Devices:
-            Domoticz.Device(Name="Total Power Meter",Unit=10,Type=0xfa, Subtype=0x01, Used=0).Create()
+            Domoticz.Device(Name="Export Energy",                Unit=10, Type=0xfa, Subtype=0x01, Used=0).Create()
+	# 11 will be not used Import Energy (Reactive) / kVArh
+	# 12 will be not used Export Energy (Reactive) / kVArh
+	if 13 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Total Demand Power",           Unit=13, TypeName="Custom", Used=0, Options=Options).Create()
+	if 14 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Maximum Total Demand Power",   Unit=14, TypeName="Custom", Used=0, Options=Options).Create()
+	if 15 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Import Demand Power",          Unit=15, TypeName="Custom", Used=0, Options=Options).Create()
+	if 16 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Maximum Import Demand Power",  Unit=16, TypeName="Custom", Used=0, Options=Options).Create()
+	if 17 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Export Demand Power",          Unit=17, TypeName="Custom", Used=0, Options=Options).Create()
+	if 18 not in Devices:
+            Options = { "Custom": "1;W" }
+            Domoticz.Device(Name="Maximum Export Demand Power",  Unit=18, TypeName="Custom", Used=0, Options=Options).Create()
+        if 19 not in Devices:
+            Domoticz.Device(Name="Total Demand Current",         Unit=19, TypeName="Current (Single)", Used=0).Create()
+        if 20 not in Devices:
+            Domoticz.Device(Name="Maximum Total Demand Current", Unit=20, TypeName="Current (Single)", Used=0).Create()
+        if 21 not in Devices:
+            Domoticz.Device(Name="Total Energy (Active)",        Unit=21, Type=0xfa, Subtype=0x01, Used=0).Create()
+	# 22 will not be used Total Energy (Reactive)
 
         return
 
@@ -201,6 +234,17 @@ class BasePlugin:
             Devices[8].Update(1, "0")
             Devices[9].Update(1, "0")
             Devices[10].Update(1, "0")
+            Devices[13].Update(1, "0")
+            Devices[14].Update(1, "0")
+            Devices[15].Update(1, "0")
+            Devices[16].Update(1, "0")
+            Devices[17].Update(1, "0")
+            Devices[18].Update(1, "0")
+            Devices[19].Update(1, "0")
+            Devices[20].Update(1, "0")
+            Devices[21].Update(1, "0")
+
+	# XXX: Finish that.
 
         # TODO: catch errors
         # 3 counters
