@@ -17,6 +17,7 @@ Requirements:
                 <option label="Enabled" value="Moredata"/>
                 <option label="Disabled" value="Regular" default="true" />
             </options>
+        </param>
         <param field="Mode6" label="Debug" width="100px">
             <options>
                 <option label="True" value="Debug"/>
@@ -116,8 +117,6 @@ class BasePlugin:
         except:
             Domoticz.Error("Warning ! Dependancies could not be checked !")
 
-        # Parse parameters
-        
         # Debug
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(1)
@@ -159,30 +158,29 @@ class BasePlugin:
             Domoticz.Device(Name="Export Energy",                Unit=10, Type=243, Subtype=29, Used=0).Create()
 	    # 11 will be not used Import Energy (Reactive) / kVArh
 	    # 12 will be not used Export Energy (Reactive) / kVArh
-        # TODO: collect this only if it is really wanted
-        if 13 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Total Demand Power",           Unit=13, TypeName="Custom", Used=0, Options=Options).Create()
-        if 14 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Maximum Total Demand Power",   Unit=14, TypeName="Custom", Used=0, Options=Options).Create()
-        if 15 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Import Demand Power",          Unit=15, TypeName="Custom", Used=0, Options=Options).Create()
-        if 16 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Maximum Import Demand Power",  Unit=16, TypeName="Custom", Used=0, Options=Options).Create()
-        if 17 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Export Demand Power",          Unit=17, TypeName="Custom", Used=0, Options=Options).Create()
-        if 18 not in Devices:
-            Options = { "Custom": "1;W" }
-            Domoticz.Device(Name="Maximum Export Demand Power",  Unit=18, TypeName="Custom", Used=0, Options=Options).Create()
-        if 19 not in Devices:
-            Domoticz.Device(Name="Total Demand Current",         Unit=19, TypeName="Current (Single)", Used=0).Create()
-        if 20 not in Devices:
-            Domoticz.Device(Name="Maximum Total Demand Current", Unit=20, TypeName="Current (Single)", Used=0).Create()
-        # End of TODO 
+        if Parameters["Mode5"] == "Moredata":
+            if 13 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Total Demand Power",           Unit=13, TypeName="Custom", Used=0, Options=Options).Create()
+            if 14 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Maximum Total Demand Power",   Unit=14, TypeName="Custom", Used=0, Options=Options).Create()
+            if 15 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Import Demand Power",          Unit=15, TypeName="Custom", Used=0, Options=Options).Create()
+            if 16 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Maximum Import Demand Power",  Unit=16, TypeName="Custom", Used=0, Options=Options).Create()
+            if 17 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Export Demand Power",          Unit=17, TypeName="Custom", Used=0, Options=Options).Create()
+            if 18 not in Devices:
+                Options = { "Custom": "1;W" }
+                Domoticz.Device(Name="Maximum Export Demand Power",  Unit=18, TypeName="Custom", Used=0, Options=Options).Create()
+            if 19 not in Devices:
+                Domoticz.Device(Name="Total Demand Current",         Unit=19, TypeName="Current (Single)", Used=0).Create()
+            if 20 not in Devices:
+                Domoticz.Device(Name="Maximum Total Demand Current", Unit=20, TypeName="Current (Single)", Used=0).Create()
 
         if 21 not in Devices:
             Domoticz.Device(Name="Total Energy (Active)",        Unit=21, Type=0xfa, Subtype=0x01, Used=0).Create()
@@ -211,14 +209,16 @@ class BasePlugin:
             Devices[8].Update(1, "0")
             Devices[9].Update(1, "0")
             Devices[10].Update(1, "0")
-            Devices[13].Update(1, "0")
-            Devices[14].Update(1, "0")
-            Devices[15].Update(1, "0")
-            Devices[16].Update(1, "0")
-            Devices[17].Update(1, "0")
-            Devices[18].Update(1, "0")
-            Devices[19].Update(1, "0")
-            Devices[20].Update(1, "0")
+            if Parameters["Mode5"] == "Moredata":
+                Devices[13].Update(1, "0")
+                Devices[14].Update(1, "0")
+                Devices[15].Update(1, "0")
+                Devices[16].Update(1, "0")
+                Devices[17].Update(1, "0")
+                Devices[18].Update(1, "0")
+                Devices[19].Update(1, "0")
+                Devices[20].Update(1, "0")
+
             Devices[21].Update(1, "0")
 
         #Domoticz.Log("Voltage : "          + str(getmodbus(0x0000, client)) )
@@ -272,33 +272,35 @@ class BasePlugin:
         export_e = str(getmodbus(0x004a, client)*1000)
         Devices[10].Update(1, sValue=str(export_power)+";"+export_e)
 
-        #Domoticz.Log("Total Demand Pwr : " + str(getmodbus(0x0054, client)) )
-        self.total_demand_power.update(getmodbus(0x0054, client))
-        Devices[13].Update(1, self.total_demand_power.strget())
+        if Parameters["Mode5"] == "Moredata":
+            #Domoticz.Log("Total Demand Pwr : " + str(getmodbus(0x0054, client)) )
+            self.total_demand_power.update(getmodbus(0x0054, client))
+            Devices[13].Update(1, self.total_demand_power.strget())
 
-        #Domoticz.Log("Max Demand Pwr : "   + str(getmodbus(0x0056, client)) )
-        Devices[14].Update(1, str(getmodbus(0x0056, client)))
+            #Domoticz.Log("Max Demand Pwr : "   + str(getmodbus(0x0056, client)) )
+            Devices[14].Update(1, str(getmodbus(0x0056, client)))
 
-        #Domoticz.Log("Input Demand Pwr : " + str(getmodbus(0x0058, client)) )
-        self.import_demand_power.update(getmodbus(0x0058, client))
-        Devices[15].Update(1, self.import_demand_power.strget())
+            #Domoticz.Log("Input Demand Pwr : " + str(getmodbus(0x0058, client)) )
+            self.import_demand_power.update(getmodbus(0x0058, client))
+            Devices[15].Update(1, self.import_demand_power.strget())
 
-        #Domoticz.Log("Max Input Demand Pwr : " + str(getmodbus(0x005a, client)) )
-        Devices[16].Update(1, str(getmodbus(0x005a, client)))
+            #Domoticz.Log("Max Input Demand Pwr : " + str(getmodbus(0x005a, client)) )
+            Devices[16].Update(1, str(getmodbus(0x005a, client)))
 
-        #Domoticz.Log("Export Demand Pwr : " + str(getmodbus(0x005c, client)) )
-        self.import_demand_power.update(getmodbus(0x0058, client))
-        Devices[17].Update(1, self.import_demand_power.strget())
+            #Domoticz.Log("Export Demand Pwr : " + str(getmodbus(0x005c, client)) )
+            self.import_demand_power.update(getmodbus(0x0058, client))
+            Devices[17].Update(1, self.import_demand_power.strget())
 
-        #Domoticz.Log("Max Export Demand Pwr : " + str(getmodbus(0x005e, client)) )
-        Devices[18].Update(1, str(getmodbus(0x005e, client)))
+            #Domoticz.Log("Max Export Demand Pwr : " + str(getmodbus(0x005e, client)) )
+            Devices[18].Update(1, str(getmodbus(0x005e, client)))
 
-        #Domoticz.Log("Total Demand Cur: " + str(getmodbus(0x0102, client)) )
-        self.total_demand_current.update(getmodbus(0x0102, client))
-        Devices[19].Update(1, self.total_demand_current.strget())
+            #Domoticz.Log("Total Demand Cur: " + str(getmodbus(0x0102, client)) )
+            self.total_demand_current.update(getmodbus(0x0102, client))
+            Devices[19].Update(1, self.total_demand_current.strget())
 
-        #Domoticz.Log("Max Total Demand Cur: " + str(getmodbus(0x0108, client)) )
-        Devices[20].Update(1, str(getmodbus(0x0108, client)))
+            #Domoticz.Log("Max Total Demand Cur: " + str(getmodbus(0x0108, client)) )
+            Devices[20].Update(1, str(getmodbus(0x0108, client)))
+
 
         #Domoticz.Log("Total Energy Act: " + str(getmodbus(0x0156, client)) )
         Devices[21].Update(1, sValue=import_e+";0;"+export_e+";0;"+str(import_power)+";"+str(export_power))
