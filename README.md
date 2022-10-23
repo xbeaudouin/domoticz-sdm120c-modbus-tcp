@@ -79,21 +79,7 @@ sudo service domoticz.sh restart
 ```
 ## ScreenShots
 
-Hardware page showing a configured PW21 to get data from a SDM120c
-
-![](screenshots/Hardware.png)
-
-The devices page show all Domoticz devices that were created for it.
-
-![](screenshots/Devices.png)
-
-The voltage graphs.
-
-![](screenshots/Voltage.png)
-
-Total power meter with Return energy (usefull for PV/Wind turbine generators)
-
-![](screenshots/TotalPower.png)
+TODO
 
 ## Documentation about the registers used.
 
