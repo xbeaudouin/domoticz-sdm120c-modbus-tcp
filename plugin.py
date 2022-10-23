@@ -96,6 +96,8 @@ class BasePlugin:
         self.phase_angle=Average()
         # Frequency for last 5 minutes
         self.frequency=Average()
+
+        # Used only when Moredata is set... 
         # Total demand power for last 5 minutes
         self.total_demand_power=Average()
         # Import demand power for last 5 minutes
@@ -146,9 +148,11 @@ class BasePlugin:
         if 6 not in Devices:
             Options = { "Custom": "1;PF" }
             Domoticz.Device(Name="Power Factor",                 Unit=6,  TypeName="Custom", Used=0, Options=Options).Create()
-        if 7 not in Devices:
-            Options = { "Custom": "1;Deg" }
-            Domoticz.Device(Name="Phase Angle",                  Unit=7,  TypeName="Custom", Used=0, Options=Options).Create()
+        if Parameters["Mode5"] == "Moredata":
+            if 7 not in Devices:
+                Options = { "Custom": "1;Deg" }
+                Domoticz.Device(Name="Phase Angle",                  Unit=7,  TypeName="Custom", Used=0, Options=Options).Create()
+
         if 8 not in Devices:
             Options = { "Custom": "1;Hz" }
             Domoticz.Device(Name="Frequency",                    Unit=8,  TypeName="Custom", Used=0, Options=Options).Create()
@@ -183,7 +187,7 @@ class BasePlugin:
                 Domoticz.Device(Name="Maximum Total Demand Current", Unit=20, TypeName="Current (Single)", Used=0).Create()
 
         if 21 not in Devices:
-            Domoticz.Device(Name="Total Energy (Active)",        Unit=21, Type=0xfa, Subtype=0x01, Used=0).Create()
+            Domoticz.Device(Name="Total Energy",                     Unit=21, Type=0xfa, Subtype=0x01, Used=0).Create()
 	    # 22 will not be used Total Energy (Reactive)
 
         return
@@ -205,7 +209,9 @@ class BasePlugin:
             Devices[4].Update(1, "0")
             Devices[5].Update(1, "0")
             Devices[6].Update(1, "0")
-            Devices[7].Update(1, "0")
+            if Parameters["Mode5"] == "Moredata":
+                Devices[7].Update(1, "0")
+
             Devices[8].Update(1, "0")
             Devices[9].Update(1, "0")
             Devices[10].Update(1, "0")
@@ -221,38 +227,40 @@ class BasePlugin:
 
             Devices[21].Update(1, "0")
 
-        #Domoticz.Log("Voltage : "          + str(getmodbus(0x0000, client)) )
+        # Voltage 
         self.voltage.update(getmodbus(0x0000, client))
         Devices[1].Update(1, self.voltage.strget())
 
-        #Domoticz.Log("Current : "          + str(getmodbus(0x0006, client)) )
+        # Current
         self.current.update(getmodbus(0x0006, client))
         Devices[2].Update(1, self.current.strget())
 
-        #Domoticz.Log("Power Active : "     + str(getmodbus(0x000c, client)) )
+        # Power (Active)
         self.active_power.update(getmodbus(0x000c, client))
         Devices[3].Update(1, self.active_power.strget())
 
-        #Domoticz.Log("Power apparent: "   + str(getmodbus(0x0012, client)) )
+        # Power (Apparent)
         self.apparent_power.update(getmodbus(0x0012, client))
         Devices[4].Update(1, self.apparent_power.strget())
 
-        #Domoticz.Log("Power reactive:  "   + str(getmodbus(0x0018, client)) )
+        # Power (Reactive)
         self.reactive_power.update(getmodbus(0x0018, client))
         Devices[5].Update(1, self.reactive_power.strget())
 
-        #Domoticz.Log("Power Factor : "     + str(getmodbus(0x001e, client)) )
+        # Power Factor
         self.power_factor.update(getmodbus(0x001e, client))
         Devices[6].Update(1, self.power_factor.strget())
 
-        #Domoticz.Log("Phase Angle : "      + str(getmodbus(0x0024, client)) )
-        self.phase_angle.update(getmodbus(0x0024, client))
-        Devices[7].Update(1, self.phase_angle.strget())
+        if Parameters["Mode5"] == "Moredata":
+            # Phase Angle
+            self.phase_angle.update(getmodbus(0x0024, client))
+            Devices[7].Update(1, self.phase_angle.strget())
 
-        #Domoticz.Log("Frequency : "        + str(getmodbus(0x0046, client)) )
+        # Frequency
         self.frequency.update(getmodbus(0x0046, client))
         Devices[8].Update(1, self.frequency.strget())
 
+        # For Imported/Exported Energy (Active) and the last P1 Counter
         power = self.active_power.get()
         if power >= 0:
             import_power = power
@@ -264,45 +272,45 @@ class BasePlugin:
         else:
             export_power = 0
 
-        #Domoticz.Log("Import NRJ act : "   + str(getmodbus(0x0048, client)) )
+        # Imported Energy (Active)
         import_e = str(getmodbus(0x0048, client)*1000)
         Devices[9].Update(1, sValue=str(import_power)+";"+import_e)
         
-        #Domoticz.Log("Export NRJ act : "   + str(getmodbus(0x004a, client)) )
+        # Exported Energy (Active)
         export_e = str(getmodbus(0x004a, client)*1000)
         Devices[10].Update(1, sValue=str(export_power)+";"+export_e)
 
         if Parameters["Mode5"] == "Moredata":
-            #Domoticz.Log("Total Demand Pwr : " + str(getmodbus(0x0054, client)) )
+            # Total Demand Powier (Active)
             self.total_demand_power.update(getmodbus(0x0054, client))
             Devices[13].Update(1, self.total_demand_power.strget())
 
-            #Domoticz.Log("Max Demand Pwr : "   + str(getmodbus(0x0056, client)) )
+            # Maximum Total Demand Power (Active)
             Devices[14].Update(1, str(getmodbus(0x0056, client)))
 
-            #Domoticz.Log("Input Demand Pwr : " + str(getmodbus(0x0058, client)) )
+            # Import Demand Power (Active)
             self.import_demand_power.update(getmodbus(0x0058, client))
             Devices[15].Update(1, self.import_demand_power.strget())
 
-            #Domoticz.Log("Max Input Demand Pwr : " + str(getmodbus(0x005a, client)) )
+            # Maximum Import Demand Power (Active)
             Devices[16].Update(1, str(getmodbus(0x005a, client)))
 
-            #Domoticz.Log("Export Demand Pwr : " + str(getmodbus(0x005c, client)) )
+            # Export Demand Power (Active)
             self.import_demand_power.update(getmodbus(0x0058, client))
             Devices[17].Update(1, self.import_demand_power.strget())
 
-            #Domoticz.Log("Max Export Demand Pwr : " + str(getmodbus(0x005e, client)) )
+            # Maxium Export Demand Power (Active)
             Devices[18].Update(1, str(getmodbus(0x005e, client)))
 
-            #Domoticz.Log("Total Demand Cur: " + str(getmodbus(0x0102, client)) )
+            # Total Demand Current
             self.total_demand_current.update(getmodbus(0x0102, client))
             Devices[19].Update(1, self.total_demand_current.strget())
 
-            #Domoticz.Log("Max Total Demand Cur: " + str(getmodbus(0x0108, client)) )
+            # Maxium Total Demand Current
             Devices[20].Update(1, str(getmodbus(0x0108, client)))
 
 
-        #Domoticz.Log("Total Energy Act: " + str(getmodbus(0x0156, client)) )
+        # P1 Counter with import and export values
         Devices[21].Update(1, sValue=import_e+";0;"+export_e+";0;"+str(import_power)+";"+str(export_power))
         
 
