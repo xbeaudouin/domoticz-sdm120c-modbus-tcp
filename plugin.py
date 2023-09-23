@@ -351,14 +351,15 @@ def getmodbus(register, client):
     try:
         data = client.read_input_registers(register, 2)
         Domoticz.Debug("Data from register "+str(register)+": "+str(data))
-        decoder = BinaryPayloadDecoder.fromRegisters(data, byteorder=Endian.Big, wordorder=Endian.Big)
+        #decoder = BinaryPayloadDecoder.fromRegisters(data, byteorder=Endian.Big, wordorder=Endian.Big)
+        decoder = BinaryPayloadDecoder.fromRegisters(data, byteorder=Endian.BIG, wordorder=Endian.BIG)
         value = round(decoder.decode_32bit_float(), 3)
     except:
         Domoticz.Error("Error getting data from "+str(register) + ", try 1")
         try:
             data = client.read_input_registers(register, 2)
             Domoticz.Debug("Data from register "+str(register)+": "+str(data))
-            decoder = BinaryPayloadDecoder.fromRegisters(data, byteorder=Endian.Big, wordorder=Endian.Big)
+            decoder = BinaryPayloadDecoder.fromRegisters(data, byteorder=Endian.BIG, wordorder=Endian.BIG)
             value = round(decoder.decode_32bit_float(), 3)
         except:
             Domoticz.Error("Error getting data from "+str(register) + ", try 2")
